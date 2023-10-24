@@ -1,4 +1,4 @@
-
+import 'package:digital_tasbiah/style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +10,15 @@ class MyApp extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomePage(),);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "To Do App",
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+
+      ),
+
+      home: HomePage(),);
   }
 }
 class HomePage extends StatefulWidget {
@@ -21,99 +29,78 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController _fieldoneTEcontroller = TextEditingController();
-  TextEditingController _fieldtwoTEcontroller = TextEditingController();
-  GlobalKey <FormState> _formkey = GlobalKey<FormState>();
-
-  double result = 0;
+  List TodoList= [];
+  String Item ="";
+  MyInputOnChange(content){
+    Item = content;
+  }
+  AddItem(){
+    setState(() {
+      TodoList.add({"Item": Item});
+    });
+  }
+  DeleteItem(index){
+    setState(() {
+      TodoList.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Mathematics Operation"),
-          centerTitle: true,
-        ),
-        body: Form(
-          key: _formkey,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                TextFormField(
-                    keyboardType: TextInputType.number,
-                    controller: _fieldoneTEcontroller,
-                    decoration: const InputDecoration(
-                      label: Text("Enter First Number"),
-                    ),
-                    validator: (String ? value) {
-                      if (value?.isEmpty ?? true) {
-                        return "Enter Valid Value";
-                      }
-                      return null;
-                    }
-                ),
-                TextFormField(
-                  controller: _fieldtwoTEcontroller,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    label: Text("Enter Second Number"),
-                  ),
-                  validator: (String ? value) {
-                    if (value?.isEmpty ?? true) {
-                      return "Enter Valid Value";
-                    }
-                    return null;
-                  },
-                ),
-                Row(
+      appBar: AppBar(
+        title: const Text("TO-Do-APP"),
+        centerTitle: true,
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Expanded(
+                flex: 15,
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton.icon(onPressed: () {
-                      if (_formkey.currentState!.validate()) {
-                        double firstNumber = double.parse(_fieldoneTEcontroller
-                            .text.trim());
-                        double secondNumber = double.parse(_fieldtwoTEcontroller
-                            .text.trim());
-                        result = firstNumber + secondNumber;
-                        setState(() {});
-                      }
-                    }, icon: Icon(Icons.add), label: Text("Add"),),
-                    const SizedBox(width: 10,),
-                    ElevatedButton.icon(onPressed: (){
-                      if (_formkey.currentState!.validate()) {
-                      double firstNumber = double.parse(_fieldoneTEcontroller
-                          .text.trim());
-                      double secondNumber = double.parse(_fieldtwoTEcontroller
-                          .text.trim());
-                      result = firstNumber - secondNumber;
-                      setState(() {});
-                    }
+                    Expanded(
+                      flex:68,
+                        child: TextFormField(onChanged:(content){MyInputOnChange(content);}, decoration: AppInputDecoration("Enter List"),)),
+                    Expanded(
+                      flex: 1,
+                        child:SizedBox() ),
 
-
-                    }, icon: const Icon(Icons.remove),label: Text("Sub"),),
-
-                    const SizedBox(width: 10,),
-                    ElevatedButton.icon(onPressed: (){
-                      if (_formkey.currentState!.validate()) {
-                        double firstNumber = double.parse(_fieldoneTEcontroller
-                            .text.trim());
-                        double secondNumber = double.parse(_fieldtwoTEcontroller
-                            .text.trim());
-                        result = firstNumber * secondNumber;
-                        setState(() {});
-                      }
-
-
-                    }, icon: const Icon(Icons.star),label: const Text("Multiply"),)
+                    Expanded(flex:31,
+                        child: ElevatedButton.icon(onPressed: (){AddItem();}, icon: Icon(Icons.add), label: Text("Add"), style: AppButtonStyle(),)),
                   ],
-                ),
-                Text("Result is: $result", style: TextStyle(fontSize: 40,),),
-              ],
-            ),
-          ),
-        )
+
+            )),
+            SizedBox(height: 20,),
+            Expanded(
+                flex: 85,
+                child: ListView.builder(
+                    itemCount: TodoList.length,
+                    itemBuilder: (context, index){
+                      return Card(
+
+                        child: Sizebox50(
+                          Row(
+                            children: [
+                              Expanded(
+                                  flex:80,
+                                  child: Text(TodoList[index]['Item'].toString())),
+                              Expanded(
+                                  flex: 20,
+                                  child: ElevatedButton(onPressed: (){DeleteItem(index);},child: Icon(Icons.delete),)),
+                            ],
+                          )
+                        ),
+
+                      );
+                    }
+                    )
+            )
+          ],
+        ),
+      ),
     );
   }
 }
-
