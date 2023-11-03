@@ -1,47 +1,75 @@
-import 'package:digital_tasbiah/style.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-void main(){
-  runApp(const MyApp());
+void main() {
+  runApp(MyApp());
 }
-class MyApp extends StatelessWidget{
-  const MyApp({super.key});
 
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "To Do App",
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-
-      ),
-
-      home: HomePage(),);
+      home: WeatherApp(),
+    );
   }
 }
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+
+class WeatherApp extends StatefulWidget {
+  @override
+  _WeatherAppState createState() => _WeatherAppState();
+}
+
+class _WeatherAppState extends State<WeatherApp> {
+  List<Map<String, dynamic>> citiesData = [];
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
+  void initState() {
+    super.initState();
+    String jsonData = '''
+      [
+        {
+          "city": "New York",
+          "temperature": 20,
+          "condition": "Clear",
+          "humidity": 60,
+          "windSpeed": 5.5
+        },
+        {
+          "city": "Los Angeles",
+          "temperature": 25,
+          "condition": "Sunny",
+          "humidity": 50,
+          "windSpeed": 6.8
+        },
+        {
+          "city": "London",
+          "temperature": 15,
+          "condition": "Partly Cloudy",
+          "humidity": 70,
+          "windSpeed": 4.2
+        },
+        {
+          "city": "Tokyo",
+          "temperature": 28,
+          "condition": "Rainy",
+          "humidity": 75,
+          "windSpeed": 8.0
+        },
+        {
+          "city": "Sydney",
+          "temperature": 22,
+          "condition": "Cloudy",
+          "humidity": 55,
+          "windSpeed": 7.3
+        }
+      ]
+    ''';
 
-class _HomePageState extends State<HomePage> {
-  List TodoList= [];
-  String Item ="";
-  MyInputOnChange(content){
-    Item = content;
-  }
-  AddItem(){
+    List<dynamic> jsonDataList = json.decode(jsonData);
+
     setState(() {
-      TodoList.add({"Item": Item});
-    });
-  }
-  DeleteItem(index){
-    setState(() {
-      TodoList.removeAt(index);
+      citiesData = jsonDataList.cast<Map<String, dynamic>>();
     });
   }
 
@@ -49,57 +77,27 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("TO-Do-APP"),
-        centerTitle: true,
+        title: Text('Weather Info App'),
       ),
-      body: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Expanded(
-                flex: 15,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex:68,
-                        child: TextFormField(onChanged:(content){MyInputOnChange(content);}, decoration: AppInputDecoration("Enter List"),)),
-                    Expanded(
-                      flex: 1,
-                        child:SizedBox() ),
-
-                    Expanded(flex:31,
-                        child: ElevatedButton.icon(onPressed: (){AddItem();}, icon: Icon(Icons.add), label: Text("Add"), style: AppButtonStyle(),)),
-                  ],
-
-            )),
-            SizedBox(height: 20,),
-            Expanded(
-                flex: 85,
-                child: ListView.builder(
-                    itemCount: TodoList.length,
-                    itemBuilder: (context, index){
-                      return Card(
-
-                        child: Sizebox50(
-                          Row(
-                            children: [
-                              Expanded(
-                                  flex:80,
-                                  child: Text(TodoList[index]['Item'].toString())),
-                              Expanded(
-                                  flex: 20,
-                                  child: ElevatedButton(onPressed: (){DeleteItem(index);},child: Icon(Icons.delete),)),
-                            ],
-                          )
-                        ),
-
-                      );
-                    }
-                    )
-            )
-          ],
-        ),
+      body: ListView.builder(
+        itemCount: citiesData.length,
+        itemBuilder: (BuildContext context, int index) {
+          var cityData = citiesData[index];
+          return Card(
+            child: ListTile(
+              title: Text(cityData['city']),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Temperature: ${cityData['temperature']}°C'),
+                  Text('Condition: ${cityData['condition']}'),
+                  Text('Humidity: ${cityData['humidity']}%'),
+                  Text('Wind Speed: ${cityData['windSpeed']} km/h'),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
